@@ -44,7 +44,6 @@ def main(employee_id):
         if completed:
             print(f"\t {title}")
 
-
 if __name__ == "__main__":
     if len(argv) > 1:
         main(argv[1])
