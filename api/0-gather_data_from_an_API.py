@@ -3,49 +3,32 @@
 Python script that returns TODO list progress for a given employee ID
 """
 import requests
-from sys import argv
-
-
-def get_employee_info(employee_id):
-    """
-    Get employee information by employee ID
-    """
-    url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/'
-    response = requests.get(url)
-    return response.json()
-
-
-def get_employee_todos(employee_id):
-    """
-    Get the TODO list of the employee by employee ID
-    """
-    url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
-    response = requests.get(url)
-    return response.json()
+import sys
 
 
 def main(employee_id):
-    """
-    Main function to fetch and display the TODO list progress of the employee
-    """
-    employee = get_employee_info(employee_id)
-    employee_name = employee.get("name")
+    """Fetch employee info and TODO progress"""
 
-    emp_todos = get_employee_todos(employee_id)
-    tasks = {todo.get("title"): todo.get("completed") for todo in emp_todos}
+    user_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    todo_url = f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
 
-    total_tasks = len(tasks)
-    completed_tasks = [completed for completed in tasks.values() if completed]
-    completed_tasks_count = len(completed_tasks)
+    user = requests.get(user_url).json()
+    todos = requests.get(todo_url).json()
 
-    print(f"Employee {employee_name} is done with tasks"
-          f"({completed_tasks_count}/{total_tasks}):")
-    for title, completed in tasks.items():
-        if completed:
-            print(f"\t {title}")
+    employee_name = user.get("name")
+
+    total_tasks = len(todos)
+    completed_tasks = [task for task in todos if task.get("completed")]
+
+    print(
+        f"Employee {employee_name} is done with tasks"
+        f"({len(completed_tasks)}/{total_tasks}):"
+    )
+
+    for task in completed_tasks:
+        print(f"\t {task.get('title')}")
+
 
 if __name__ == "__main__":
-    if len(argv) > 1:
-        main(argv[1])
-    else:
-        print("Usage: ./0-gather_data_from_an_API.py <employee_id>")
+    if len(sys.argv) == 2:
+        main(sys.argv[1])
