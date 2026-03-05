@@ -1,56 +1,39 @@
 #!/usr/bin/python3
 """
-Module to fetch user information and export TODO list to a CSV file
+1-export_to_CSV.py
+Exports all tasks of a given employee to a CSV file.
 """
 import csv
 import requests
 from sys import argv
 
-
-def get_employee_info(employee_id):
-    """
-    Get employee information by employee ID
-    """
-    url = f'https://jsonplaceholder.typicode.com/users/{employee_id}'
-    response = requests.get(url)
-    return response.json()
-
-
-def get_employee_todos(employee_id):
-    """
-    Get the TODO list of the employee by employee ID
-    """
-    url = f'https://jsonplaceholder.typicode.com/users/{employee_id}/todos'
-    response = requests.get(url)
-    return response.json()
-
-
-def export_to_csv(employee_id, username, todos):
-    """
-    Export TODO list to a CSV file
-    """
-    filename = f'{employee_id}.csv'
-    with open(filename, mode='w') as file:
-        file_writer = csv.writer(file, delimiter=',', quoting=csv.QUOTE_ALL)
-        for todo in todos:
-            rowData = [employee_id, username, todo['completed'], todo['title']]
-            file_writer.writerow(rowData)
-
-
-def main(employee_id):
-    """
-    Main function to fetch user info and TODO list, then export to CSV
-    """
-    user = get_employee_info(employee_id)
-    username = user.get("username")
-
-    todos = get_employee_todos(employee_id)
-
-    export_to_csv(employee_id, username, todos)
-
-
 if __name__ == "__main__":
-    if len(argv) > 1:
-        main(argv[1])
-    else:
+    if len(argv) != 2:
         print("Usage: ./1-export_to_CSV.py <employee_id>")
+        exit(1)
+
+    employee_id = argv[1]
+
+    # Fetch employee info
+    user = requests.get(
+        f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    ).json()
+
+    # Fetch all TODOs for employee
+    todos = requests.get(
+        f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
+    ).json()
+
+    # CSV filename: <employee_id>.csv
+    filename = f"{employee_id}.csv"
+
+    # Write tasks to CSV
+    with open(filename, mode="w", newline="") as csv_file:
+        writer = csv.writer(csv_file, quoting=csv.QUOTE_ALL)
+        for task in todos:
+            writer.writerow([
+                employee_id,
+                user.get("username"),
+                task.get("completed"),
+                task.get("title")
+            ])
