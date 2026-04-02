@@ -1,27 +1,22 @@
 #!/usr/bin/python3
 """
-1-export_to_CSV.py
-Exports all tasks of a given employee to a CSV file.
+Python script to export TODO list data for a given employee to CSV
 """
 import csv
 import requests
-from sys import argv
+import sys
 
-if __name__ == "__main__":
-    if len(argv) != 2:
-        print("Usage: ./1-export_to_CSV.py <employee_id>")
-        exit(1)
 
-    employee_id = argv[1]
-
-    user = requests.get(
-        f"https://jsonplaceholder.typicode.com/users/{employee_id}"
-    ).json()
-
-    todos = requests.get(
+def main(employee_id):
+    """Fetch employee info and export all tasks to CSV"""
+    user_url = f"https://jsonplaceholder.typicode.com/users/{employee_id}"
+    todo_url = (
         f"https://jsonplaceholder.typicode.com/todos?userId={employee_id}"
-    ).json()
+    )
+    user = requests.get(user_url).json()
+    todos = requests.get(todo_url).json()
 
+    username = user.get("username")
     filename = f"{employee_id}.csv"
 
     with open(filename, mode="w", newline="") as csv_file:
@@ -29,7 +24,12 @@ if __name__ == "__main__":
         for task in todos:
             writer.writerow([
                 employee_id,
-                user.get("username"),
+                username,
                 str(task.get("completed")),
                 task.get("title")
             ])
+
+
+if __name__ == "__main__":
+    if len(sys.argv) == 2:
+        main(sys.argv[1])
