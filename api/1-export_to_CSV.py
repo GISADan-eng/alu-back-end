@@ -7,7 +7,6 @@ import csv
 import requests
 from sys import argv
 
-
 if __name__ == "__main__":
     if len(argv) != 2:
         print("Usage: ./1-export_to_CSV.py <employee_id>")
@@ -31,6 +30,6 @@ if __name__ == "__main__":
             writer.writerow([
                 employee_id,
                 user.get("username"),
-                task.get("completed"),
+                str(task.get("completed")),
                 task.get("title")
             ])
